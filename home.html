@@ -1,0 +1,293 @@
+<!-- home.html -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- スマホ向け viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>情報I 学習サイト - ホーム</title>
+    <style>
+      /* ▼ 文字サイズの基準は html で管理（モバイル寄り） ▼ */
+      html {
+        font-size: 18px; /* デフォルト: スマホ・タブレット・画面分割PC向け */
+      }
+
+      /* 十分広い画面だけ少し小さめにする（PCフルスクリーン想定） */
+      @media (min-width: 1100px) {
+        html {
+          font-size: 16px;
+        }
+      }
+      /* ▲ 文字サイズの基準は html で管理 ▲ */
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        width: 100%;
+        box-sizing: border-box;
+        margin: 12px auto;
+        padding: 0 32px;
+        line-height: 1.6;
+        background: #f3f4f6;
+        font-size: 1rem; /* 基本は rem に任せる */
+      }
+
+      @media (min-width: 1100px) {
+        body {
+          max-width: 800px;
+          margin: 32px auto;
+          padding: 0 16px;
+        }
+      }
+
+      h1 {
+        margin-bottom: 8px;
+        font-size: 1.6rem;
+      }
+
+      .user-info {
+        margin-bottom: 12px;
+        font-size: 1rem;
+        color: #555;
+        line-height: 1.7;
+      }
+
+      .card {
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 16px;
+        background: #ffffff;
+        box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+      }
+
+      .section-title {
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 1.05rem;
+        color: #111827;
+      }
+
+      .section-note {
+        font-size: 0.9rem;
+        color: #6b7280;
+        margin-bottom: 8px;
+      }
+
+      .chips-wrapper {
+        margin-bottom: 12px;
+      }
+
+      /* チップ（範囲選択）の見た目 */
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        margin: 4px;
+        border-radius: 999px;
+        border: 2px solid #e5e7eb;
+        background: #f9fafb;
+        color: #374151;
+        font-size: 0.95rem;  /* ★チップの文字サイズを変えたいときはここ */
+        cursor: pointer;
+        user-select: none;
+        transition:
+          background-color 0.15s,
+          border-color 0.15s,
+          color 0.15s,
+          box-shadow 0.15s;
+      }
+
+      .chip:hover {
+        box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.5);
+      }
+
+      .chip.selected {
+        border-color: #16a34a;   /* 枠線の色 */
+        background: #ecfdf3;     /* 薄い緑 */
+        color: #166534;          /* 文字色 */
+      }
+
+      .chip input[type="checkbox"] {
+        display: none;
+      }
+
+      .chip.disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+
+      .btn-primary {
+        display: inline-block;
+        padding: 10px 24px;
+        border-radius: 999px;
+        border: none;
+        background: #22c55e;
+        color: #ffffff;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+
+      .btn-primary:hover {
+        background: #16a34a;
+      }
+
+      .btn-primary:disabled {
+        background: #86efac;
+        cursor: default;
+      }
+
+      .btn-primary.full-width {
+        width: 100%;
+        text-align: center;
+      }
+
+      #viewport-info {
+        margin-top: 8px;
+        font-size: 0.8rem;
+        color: #6b7280;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>情報I 学習サイト</h1>
+
+    <div class="user-info">
+      <? if (userEmail) { ?>
+        ログイン中のユーザ: <?= userEmail ?><br>
+        <? if (userStats) {
+             var total = userStats.total || 0;
+             var correct = userStats.correct || 0;
+             var rate = total > 0 ? Math.round(correct * 100 / total) : 0;
+        ?>
+          累計解答数: <?= total ?> 問 /
+          正解数: <?= correct ?> 問 /
+          正答率: <?= rate ?>%
+        <? } ?>
+      <? } else { ?>
+        ログイン中のユーザのメールアドレスを取得できませんでした。
+      <? } ?>
+    </div>
+
+    <div class="card">
+      <div class="section-title">1. 出題する範囲を選ぶ</div>
+      <div class="section-note">
+        ※ 学習したい範囲をタップして選択してください。<br>
+        ※ 何も選ばれていない場合は、すべての範囲から出題されます。
+      </div>
+
+      <!-- 単元チップ -->
+      <div class="section-title" style="margin-top: 8px;">単元</div>
+      <div class="chips-wrapper" id="unit-chips">
+        <? if (unitOptions && unitOptions.length) { ?>
+          <? for (var i = 0; i < unitOptions.length; i++) {
+               var u = unitOptions[i];
+          ?>
+            <label class="chip unit-chip">
+              <input type="checkbox" value="<?= u ?>">
+              <span><?= u ?></span>
+            </label>
+          <? } ?>
+        <? } else { ?>
+          <span class="chip disabled">単元の情報がありません</span>
+        <? } ?>
+      </div>
+
+      <!-- テスト範囲チップ -->
+      <div class="section-title" style="margin-top: 8px;">テスト範囲</div>
+      <div class="chips-wrapper" id="range-chips">
+        <? if (rangeOptions && rangeOptions.length) { ?>
+          <? for (var j = 0; j < rangeOptions.length; j++) {
+               var r = rangeOptions[j];
+          ?>
+            <label class="chip range-chip">
+              <input type="checkbox" value="<?= r ?>">
+              <span><?= r ?></span>
+            </label>
+          <? } ?>
+        <? } else { ?>
+          <span class="chip disabled">テスト範囲の情報がありません</span>
+        <? } ?>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">2. 学習を開始する</div>
+      <div class="section-note">選んだ範囲から問題がランダムに出題されます。</div>
+
+      <form id="start-form" method="GET" action="<?= webAppUrl ?>">
+        <input type="hidden" name="page" value="quiz">
+        <input type="hidden" id="unit-input" name="unitFilters">
+        <input type="hidden" id="range-input" name="rangeFilters">
+
+        <button id="start-btn" type="button" class="btn-primary full-width">
+          学習を始める
+        </button>
+      </form>
+    </div>
+
+    <div id="viewport-info"></div>
+
+    <script>
+      (function () {
+        const startForm  = document.getElementById('start-form');
+        const startBtn   = document.getElementById('start-btn');
+        const unitInput  = document.getElementById('unit-input');
+        const rangeInput = document.getElementById('range-input');
+
+        const unitChips  = document.querySelectorAll('.unit-chip');
+        const rangeChips = document.querySelectorAll('.range-chip');
+
+        function setupChip(label) {
+          const checkbox = label.querySelector('input[type="checkbox"]');
+          if (!checkbox) return;
+
+          checkbox.checked = false;
+          label.classList.remove('selected');
+
+          label.addEventListener('click', function (e) {
+            e.preventDefault();
+            checkbox.checked = !checkbox.checked;
+            label.classList.toggle('selected', checkbox.checked);
+          });
+        }
+
+        unitChips.forEach(setupChip);
+        rangeChips.forEach(setupChip);
+
+        let isStarting = false;
+
+        startBtn.addEventListener('click', function () {
+          if (isStarting) return;
+
+          const selectedUnits = Array.from(
+            document.querySelectorAll('.unit-chip input[type="checkbox"]:checked')
+          ).map(cb => cb.value);
+
+          const selectedRanges = Array.from(
+            document.querySelectorAll('.range-chip input[type="checkbox"]:checked')
+          ).map(cb => cb.value);
+
+          unitInput.value  = selectedUnits.join(',');
+          rangeInput.value = selectedRanges.join(',');
+
+          isStarting = true;
+          startBtn.disabled = true;
+          startBtn.textContent = '読み込み中…';
+
+          startForm.submit();
+        });
+      })();
+
+      (function () {
+        const infoEl = document.getElementById('viewport-info');
+        function updateViewportInfo() {
+          if (!infoEl) return;
+          infoEl.textContent =
+            'viewport: ' + window.innerWidth + ' × ' + window.innerHeight + ' px';
+        }
+        window.addEventListener('resize', updateViewportInfo);
+        updateViewportInfo();
+      })();
+    </script>
+  </body>
+</html>

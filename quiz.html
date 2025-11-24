@@ -1,0 +1,746 @@
+<!-- quiz.html -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- スマホ向け viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>情報I 学習サイト - 問題</title>
+    <style>
+      /* ▼ 文字サイズの基準（モバイル寄り） ▼ */
+      html {
+        font-size: 18px;
+      }
+
+      @media (min-width: 1100px) {
+        html {
+          font-size: 16px;
+        }
+      }
+      /* ▲ 文字サイズの基準 ▲ */
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        width: 100%;
+        box-sizing: border-box;
+        margin: 12px auto;
+        padding: 0 32px;
+        line-height: 1.6;
+        background: #f3f4f6;
+        font-size: 1rem;
+      }
+
+      @media (min-width: 1100px) {
+        body {
+          max-width: 800px;
+          margin: 32px auto;
+          padding: 0 16px;
+        }
+      }
+
+      h1 {
+        margin-bottom: 8px;
+        font-size: 1.6rem;
+      }
+
+      .user-info {
+        margin-bottom: 12px;
+        font-size: 0.95rem;
+        color: #555;
+      }
+
+      .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .btn-home {
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid #d1d5db;
+        background: #e5e7eb;
+        color: #374151;
+        font-size: 0.9rem;
+        cursor: pointer;
+        white-space: nowrap;
+        text-decoration: none; /* aタグでもボタンっぽく見せる */
+        display: inline-block;
+      }
+
+      .btn-home:hover {
+        background: #d1d5db;
+      }
+
+      .card {
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 16px;
+        background: #ffffff;
+        box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+      }
+
+      .question-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        color: #6b7280;
+      }
+
+      .question-label {
+        font-weight: 600;
+        color: #111827;
+      }
+
+      .question-type {
+        font-size: 0.85rem;
+        color: #4b5563;
+      }
+
+      .question-text {
+        font-size: 1.2rem;
+        margin: 12px 0 20px; /* 問題文と選択肢の間を広めに */
+      }
+
+      .choices-wrapper {
+        margin-bottom: 16px;
+      }
+
+      .choice-button {
+        display: flex;
+        align-items: flex-start;
+        width: 100%;
+        margin-bottom: 8px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        background: #f9fafb;
+        cursor: pointer;
+        text-align: left;
+        gap: 8px;
+        transition:
+          background-color 0.15s,
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+
+      .choice-button:hover {
+        background: #eff6ff;
+        border-color: #93c5fd;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+      }
+
+      .choice-button.disabled {
+        cursor: default;
+        opacity: 0.7;
+      }
+
+      .choice-label {
+        font-weight: 700;
+        min-width: 1.5em; /* 「ア」「イ」だけ独立させる */
+      }
+
+      .choice-text {
+        flex: 1;
+        font-size: 1rem;
+      }
+
+      .tf-wrapper {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .tf-button {
+        flex: 1;
+        padding: 14px 0;
+        border-radius: 999px;
+        border: 1px solid #e5e7eb;
+        background: #f9fafb;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition:
+          background-color 0.15s,
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+
+      .tf-button:hover {
+        background: #ecfdf3;
+        border-color: #16a34a;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+      }
+
+      .tf-button.disabled {
+        cursor: default;
+        opacity: 0.7;
+      }
+
+      .text-answer-wrapper {
+        margin-bottom: 16px;
+      }
+
+      .text-answer-input {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 1rem;
+        box-sizing: border-box;
+      }
+
+      .text-answer-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 1px #bfdbfe;
+      }
+
+      .btn-submit {
+        margin-top: 8px;
+        display: inline-block;
+        padding: 8px 18px;
+        border-radius: 999px;
+        border: none;
+        background: #3b82f6;
+        color: #ffffff;
+        font-size: 0.95rem;
+        cursor: pointer;
+      }
+
+      .btn-submit:hover {
+        background: #2563eb;
+      }
+
+      .btn-submit:disabled {
+        background: #bfdbfe;
+        cursor: default;
+      }
+
+      .result-message {
+        margin-top: 8px;
+        font-weight: 700;
+        font-size: 1rem;
+      }
+
+      .result-correct {
+        color: #15803d;
+      }
+
+      .result-wrong {
+        color: #b91c1c;
+      }
+
+      .result-correct-answer {
+        margin-top: 4px;
+        font-size: 0.95rem;
+        color: #374151;
+      }
+
+      .explanation-block {
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: #f9fafb;
+        border-left: 4px solid #e5e7eb;
+      }
+
+      .explanation-title {
+        font-weight: 600;
+        margin-bottom: 6px;
+        font-size: 0.95rem;
+        color: #111827;
+      }
+
+      .explanation-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 4px;
+        font-size: 0.9rem;
+      }
+
+      .explanation-item-label {
+        font-weight: 700;
+        min-width: 1.5em;
+        color: #374151;
+      }
+
+      .explanation-item-text {
+        flex: 1;
+        color: #4b5563;
+        white-space: pre-line;
+      }
+
+      .explanation-item.hidden {
+        display: none;
+      }
+
+      .bottom-buttons {
+        margin-top: 16px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .btn-next {
+        padding: 8px 18px;
+        border-radius: 999px;
+        border: none;
+        background: #22c55e;
+        color: #ffffff;
+        font-size: 0.95rem;
+        cursor: pointer;
+      }
+
+      .btn-next:disabled {
+        background: #86efac;
+        cursor: default;
+      }
+
+      #viewport-info {
+        margin-top: 8px;
+        font-size: 0.8rem;
+        color: #6b7280;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <h1>情報I 学習サイト</h1>
+      <!-- ホーム画面に戻る：target="_top" で iframe からも外側を開く -->
+      <a
+        href="https://script.google.com/a/dai.hyogo-c.ed.jp/macros/s/AKfycbyviB-TNM8T7sRT5vwyuHYHNAKEWELBYFx5xFk41LuIXVmqrvLC3ESN7-hRhe5FqKjF/exec?page=home"
+        class="btn-home"
+        target="_top"
+        id="home-link"
+      >
+        🏠 ホーム画面に戻る
+      </a>
+    </div>
+
+    <div class="user-info">
+      <? if (userEmail) { ?>
+        ユーザ: <?= userEmail ?><br>
+        <? if (userStats) {
+             var total = userStats.total || 0;
+             var correct = userStats.correct || 0;
+             var rate = total > 0 ? Math.round(correct * 100 / total) : 0;
+        ?>
+          累計解答数:
+          <span id="stat-total"><?= total ?></span> 問 /
+          正解数:
+          <span id="stat-correct"><?= correct ?></span> 問 /
+          正答率:
+          <span id="stat-rate"><?= rate ?></span>%
+        <? } else { ?>
+          累計解答数:
+          <span id="stat-total">0</span> 問 /
+          正解数:
+          <span id="stat-correct">0</span> 問 /
+          正答率:
+          <span id="stat-rate">0</span>%
+        <? } ?>
+      <? } else { ?>
+        ログイン中のユーザのメールアドレスを取得できませんでした。
+      <? } ?>
+    </div>
+
+    <div class="card">
+      <div class="question-header">
+        <div class="question-label">
+          問題ID: <span id="question-id"><?= question.id ?></span>
+        </div>
+        <div class="question-type">
+          種類: <span id="question-type"><?= question.type ?></span>
+        </div>
+      </div>
+
+      <div class="question-text" id="question-text">
+        <?= question.text ?>
+      </div>
+
+      <div id="choices-wrapper" class="choices-wrapper"></div>
+
+      <div id="tf-wrapper" class="tf-wrapper" style="display:none;"></div>
+
+      <div id="text-answer-wrapper" class="text-answer-wrapper" style="display:none;">
+        <input
+          id="text-answer-input"
+          type="text"
+          class="text-answer-input"
+          placeholder="ここに答えを入力"
+        >
+        <button id="text-answer-submit" type="button" class="btn-submit">
+          解答する
+        </button>
+      </div>
+
+      <div id="result-area">
+        <div id="result-message" class="result-message"></div>
+        <div id="result-correct-answer" class="result-correct-answer"></div>
+      </div>
+
+      <div id="explanation-block" class="explanation-block" style="display:none;">
+        <div class="explanation-title">解説</div>
+
+        <!-- 単一の解説用（正誤・記述など） -->
+        <div id="exp-single" class="explanation-item">
+          <div class="explanation-item-text" id="exp-single-text"></div>
+        </div>
+
+        <!-- 多肢選択用（ア〜エ） -->
+        <div id="exp-a" class="explanation-item">
+          <div class="explanation-item-label">ア</div>
+          <div class="explanation-item-text" id="exp-a-text"></div>
+        </div>
+        <div id="exp-b" class="explanation-item">
+          <div class="explanation-item-label">イ</div>
+          <div class="explanation-item-text" id="exp-b-text"></div>
+        </div>
+        <div id="exp-c" class="explanation-item">
+          <div class="explanation-item-label">ウ</div>
+          <div class="explanation-item-text" id="exp-c-text"></div>
+        </div>
+        <div id="exp-d" class="explanation-item">
+          <div class="explanation-item-label">エ</div>
+          <div class="explanation-item-text" id="exp-d-text"></div>
+        </div>
+      </div>
+
+      <div class="bottom-buttons">
+        <button id="next-btn" type="button" class="btn-next" disabled>
+          次の問題へ
+        </button>
+      </div>
+
+      <div style="display:none;">
+        <span id="unit-filters"><?= unitFilters ?></span>
+        <span id="range-filters"><?= rangeFilters ?></span>
+      </div>
+    </div>
+
+    <div id="viewport-info"></div>
+
+    <script>
+      (function () {
+        const labels = ['ア', 'イ', 'ウ', 'エ'];
+
+        // サーバ側の question を JSON としてそのまま埋め込む
+        let currentQuestion = <?!= JSON.stringify(question) ?>;
+
+        const questionIdEl      = document.getElementById('question-id');
+        const questionTypeEl    = document.getElementById('question-type');
+        const questionTextEl    = document.getElementById('question-text');
+        const choicesWrapper    = document.getElementById('choices-wrapper');
+        const tfWrapper         = document.getElementById('tf-wrapper');
+        const textAnswerWrapper = document.getElementById('text-answer-wrapper');
+        const textAnswerInput   = document.getElementById('text-answer-input');
+        const textAnswerSubmit  = document.getElementById('text-answer-submit');
+
+        const resultMessageEl   = document.getElementById('result-message');
+        const resultCorrectEl   = document.getElementById('result-correct-answer');
+
+        const explanationBlock  = document.getElementById('explanation-block');
+        const expSingleItem     = document.getElementById('exp-single');
+        const expSingleText     = document.getElementById('exp-single-text');
+
+        const expAText          = document.getElementById('exp-a-text');
+        const expBText          = document.getElementById('exp-b-text');
+        const expCText          = document.getElementById('exp-c-text');
+        const expDText          = document.getElementById('exp-d-text');
+        const expAItem          = document.getElementById('exp-a');
+        const expBItem          = document.getElementById('exp-b');
+        const expCItem          = document.getElementById('exp-c');
+        const expDItem          = document.getElementById('exp-d');
+
+        const nextBtn           = document.getElementById('next-btn');
+
+        const unitFiltersEl     = document.getElementById('unit-filters');
+        const rangeFiltersEl    = document.getElementById('range-filters');
+
+        // 統計表示
+        const statTotalEl   = document.getElementById('stat-total');
+        const statCorrectEl = document.getElementById('stat-correct');
+        const statRateEl    = document.getElementById('stat-rate');
+
+        let answered = false;
+        let nextQuestionFromServer = null;
+
+        // ★ 解説の初期状態をリセット
+        function resetExplanationUI() {
+          // 解説全体は非表示からスタート
+          explanationBlock.style.display = 'none';
+
+          // 単一解説（正誤・記述用）は一旦消す
+          expSingleItem.style.display = 'none';
+          expSingleText.textContent = '';
+
+          // ア〜エの中身をクリアして、とりあえず全部 hidden にする
+          [expAText, expBText, expCText, expDText].forEach(el => el.textContent = '');
+          [expAItem, expBItem, expCItem, expDItem].forEach(el => {
+            el.classList.add('hidden');
+          });
+        }
+
+        function renderQuestion(q) {
+          currentQuestion = q;
+          answered = false;
+          nextQuestionFromServer = null;
+
+          questionIdEl.textContent   = q.id;
+          questionTypeEl.textContent = q.type;
+          questionTextEl.textContent = q.text;
+
+          choicesWrapper.innerHTML   = '';
+          tfWrapper.innerHTML        = '';
+          tfWrapper.style.display    = 'none';
+          textAnswerWrapper.style.display = 'none';
+          textAnswerInput.value      = '';
+          textAnswerSubmit.disabled  = false;
+
+          resultMessageEl.textContent = '';
+          resultCorrectEl.textContent = '';
+          resultMessageEl.className = 'result-message';
+
+          resetExplanationUI();
+          nextBtn.disabled = true;
+
+          if (q.type === '多肢選択') {
+            choicesWrapper.style.display = 'block';
+            (q.choices || []).forEach((choiceText, index) => {
+              if (!choiceText) return;
+              const btn = document.createElement('button');
+              btn.type = 'button';
+              btn.className = 'choice-button';
+              btn.dataset.label = labels[index] || '';
+              btn.dataset.index = String(index);
+
+              const labelSpan = document.createElement('span');
+              labelSpan.className = 'choice-label';
+              labelSpan.textContent = labels[index] || '';
+
+              const textSpan = document.createElement('span');
+              textSpan.className = 'choice-text';
+              textSpan.textContent = choiceText;
+
+              btn.appendChild(labelSpan);
+              btn.appendChild(textSpan);
+
+              btn.addEventListener('click', function () {
+                if (answered) return;
+                answered = true;
+                handleAnswer(btn.dataset.label);
+              });
+
+              choicesWrapper.appendChild(btn);
+            });
+          } else if (q.type === '正誤問題') {
+            choicesWrapper.style.display = 'none';
+            tfWrapper.style.display = 'flex';
+            tfWrapper.innerHTML = '';
+
+            const oBtn = document.createElement('button');
+            oBtn.type = 'button';
+            oBtn.className = 'tf-button';
+            oBtn.dataset.value = 'o';
+            oBtn.textContent = '◯ 正しい';
+
+            const xBtn = document.createElement('button');
+            xBtn.type = 'button';
+            xBtn.className = 'tf-button';
+            xBtn.dataset.value = 'x';
+            xBtn.textContent = '× 誤っている';
+
+            oBtn.addEventListener('click', function () {
+              if (answered) return;
+              answered = true;
+              handleAnswer('o');
+            });
+            xBtn.addEventListener('click', function () {
+              if (answered) return;
+              answered = true;
+              handleAnswer('x');
+            });
+
+            tfWrapper.appendChild(oBtn);
+            tfWrapper.appendChild(xBtn);
+          } else if (q.type === '記述問題') {
+            choicesWrapper.style.display = 'none';
+            tfWrapper.style.display = 'none';
+            textAnswerWrapper.style.display = 'block';
+          } else {
+            // 想定外タイプは多肢選択扱い
+            choicesWrapper.style.display = 'block';
+            (q.choices || []).forEach((choiceText, index) => {
+              if (!choiceText) return;
+              const btn = document.createElement('button');
+              btn.type = 'button';
+              btn.className = 'choice-button';
+              btn.dataset.label = labels[index] || '';
+              btn.dataset.index = String(index);
+
+              const labelSpan = document.createElement('span');
+              labelSpan.className = 'choice-label';
+              labelSpan.textContent = labels[index] || '';
+
+              const textSpan = document.createElement('span');
+              textSpan.className = 'choice-text';
+              textSpan.textContent = choiceText;
+
+              btn.appendChild(labelSpan);
+              btn.appendChild(textSpan);
+
+              btn.addEventListener('click', function () {
+                if (answered) return;
+                answered = true;
+                handleAnswer(btn.dataset.label);
+              });
+
+              choicesWrapper.appendChild(btn);
+            });
+          }
+        }
+
+        textAnswerSubmit.addEventListener('click', function () {
+          if (answered) return;
+          const val = textAnswerInput.value.trim();
+          if (!val) {
+            alert('答えを入力してください。');
+            return;
+          }
+          answered = true;
+          handleAnswer(val);
+        });
+
+        function handleAnswer(userAnswer) {
+          Array.from(document.querySelectorAll('.choice-button, .tf-button')).forEach(btn => {
+            btn.classList.add('disabled');
+            btn.disabled = true;
+          });
+          textAnswerSubmit.disabled = true;
+
+          const unitFilters = unitFiltersEl ? unitFiltersEl.textContent : '';
+          const rangeFilters = rangeFiltersEl ? rangeFiltersEl.textContent : '';
+
+          google.script.run
+            .withSuccessHandler(function (res) {
+              if (res.isCorrect) {
+                resultMessageEl.textContent = '正解です！';
+                resultMessageEl.classList.add('result-correct');
+              } else {
+                resultMessageEl.textContent = '不正解です…';
+                resultMessageEl.classList.add('result-wrong');
+              }
+
+              if (currentQuestion.type === '多肢選択') {
+                if (res.correctLabel) {
+                  resultCorrectEl.textContent = '正解: ' + res.correctLabel;
+                } else if (res.correctValue) {
+                  resultCorrectEl.textContent = '正解: ' + res.correctValue;
+                }
+              } else {
+                if (res.correctValue) {
+                  resultCorrectEl.textContent = '正解: ' + res.correctValue;
+                }
+              }
+
+              const exps = res.explanations || [];
+              const hasAnyExplanation = exps.some(txt => !!txt);
+
+              if (currentQuestion.type === '多肢選択') {
+                // 多肢選択 → ア〜エを使う
+                if (hasAnyExplanation) {
+                  // 単一用は消す
+                  expSingleItem.style.display = 'none';
+
+                  // いったん全部表示状態にしてから、中身がないものだけ隠す
+                  expAItem.classList.remove('hidden');
+                  expBItem.classList.remove('hidden');
+                  expCItem.classList.remove('hidden');
+                  expDItem.classList.remove('hidden');
+
+                  expAText.textContent = exps[0] || '';
+                  expBText.textContent = exps[1] || '';
+                  expCText.textContent = exps[2] || '';
+                  expDText.textContent = exps[3] || '';
+
+                  if (!exps[0]) expAItem.classList.add('hidden');
+                  if (!exps[1]) expBItem.classList.add('hidden');
+                  if (!exps[2]) expCItem.classList.add('hidden');
+                  if (!exps[3]) expDItem.classList.add('hidden');
+
+                  explanationBlock.style.display = 'block';
+                } else {
+                  explanationBlock.style.display = 'none';
+                }
+              } else {
+                // 正誤・記述 → ア〜エは完全に隠す
+                expAItem.classList.add('hidden');
+                expBItem.classList.add('hidden');
+                expCItem.classList.add('hidden');
+                expDItem.classList.add('hidden');
+
+                const singleText = exps[0] || '';
+                if (singleText) {
+                  expSingleText.textContent = singleText;
+                  expSingleItem.style.display = 'flex';
+                  explanationBlock.style.display = 'block';
+                } else {
+                  expSingleItem.style.display = 'none';
+                  explanationBlock.style.display = 'none';
+                }
+              }
+
+              if (res.userStats && statTotalEl && statCorrectEl && statRateEl) {
+                const total   = res.userStats.total || 0;
+                const correct = res.userStats.correct || 0;
+                const rate    = total > 0 ? Math.round(correct * 100 / total) : 0;
+
+                statTotalEl.textContent   = total;
+                statCorrectEl.textContent = correct;
+                statRateEl.textContent    = rate;
+              }
+
+              nextQuestionFromServer = res.nextQuestion || null;
+              nextBtn.disabled = !nextQuestionFromServer;
+            })
+            .withFailureHandler(function (err) {
+              alert('採点中にエラーが発生しました: ' + err.message);
+              nextBtn.disabled = false;
+            })
+            .checkAnswer(
+              String(currentQuestion.id),
+              userAnswer,
+              String(currentQuestion.type),
+              unitFilters,
+              rangeFilters
+            );
+        }
+
+        nextBtn.addEventListener('click', function () {
+          if (!nextQuestionFromServer) return;
+          renderQuestion(nextQuestionFromServer);
+        });
+
+        // 最初の1問を描画
+        renderQuestion(currentQuestion);
+
+        // viewport デバッグ表示
+        (function () {
+          const infoEl = document.getElementById('viewport-info');
+          function updateViewportInfo() {
+            if (!infoEl) return;
+            infoEl.textContent =
+              'viewport: ' + window.innerWidth + ' × ' + window.innerHeight + ' px';
+          }
+          window.addEventListener('resize', updateViewportInfo);
+          updateViewportInfo();
+        })();
+      })();
+    </script>
+  </body>
+</html>
